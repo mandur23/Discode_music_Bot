@@ -54,7 +54,7 @@ class FuzzyBot(commands.Bot):
 # 봇 객체 생성
 bot = FuzzyBot(command_prefix='!', intents=intents)
 
-# YouTube download options
+# 유튜브 음원 다운로드
 ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
@@ -69,12 +69,14 @@ ytdl_format_options = {
     'source_address': '0.0.0.0'
 }
 
+# 음성 추출 기능
 ffmpeg_options = {
     'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
     'options': '-vn -timeout 5000000 -user_agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"'
 }
 
-ffmpeg_path = r'C:\Users\kimminsu\Downloads\ffmpeg-2024-10-02-git-358fdf3083-full_build\bin\ffmpeg.exe'  # 설치된 FFmpeg 실행 파일의 경로 (적절히 변경 필요)
+# 설치된 FFmpeg 실행 파일의 경로 (적절히 변경 필요)
+ffmpeg_path = r'C:\Users\kimminsu\Downloads\ffmpeg-2024-10-02-git-358fdf3083-full_build\bin\ffmpeg.exe'  
 
 class MusicPlayer:
     def __init__(self, ctx):
@@ -388,7 +390,7 @@ class Music(commands.Cog):
         try:
             with open('playlists.json', 'r', encoding='utf-8') as f:
                 content = f.read()
-                if not content:  # 파일이 비어있는 경우
+                if not content:
                     return {}
                 return json.loads(content)
         except FileNotFoundError:
