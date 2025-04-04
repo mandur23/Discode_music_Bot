@@ -16,6 +16,7 @@ from discord.ui import Button, View, Select
 from fuzzywuzzy import process
 import random
 
+# 봇 토큰을 넣은 파일 작성후 주소에 대입.
 load_dotenv(dotenv_path=r'C:\Users\kimminsu\PycharmProjects\tendo_Aris\.venv\TOKEN.env')
 token = os.getenv('DISCORD_BOT_TOKEN')
 
@@ -323,7 +324,7 @@ class MusicPlayer:
         view.add_item(skip)
         view.add_item(loop)
         view.add_item(queue_loop)
-        view.add_item(random_play)  # 랜덤 재생 버튼 추가
+        view.add_item(random_play)
         view.add_item(volume_up)
         view.add_item(volume_down)
         view.add_item(stop_button)
@@ -670,7 +671,7 @@ class Music(commands.Cog):
         except Exception as e:
             print(f"delete_command_message 오류: {e}")
 
-    @commands.command(name='재시작', aliases=['restart'])
+    @commands.command(name='재시작', aliases=['restart', 'try'])
     @commands.has_permissions(administrator=True)  # 관리자 권한 필요
     async def restart(self, ctx):
         """프로그램을 재시작합니다."""
@@ -688,7 +689,7 @@ class Music(commands.Cog):
         await ctx.send("아리스가 종료될게요! 안녕히 가세요!", delete_after=10)  # 수정된 부분
         await self.bot.close()  # 봇 종료
 
-    @commands.command(name='플레이리스트삭제', aliases=['플래이리스트삭제'])
+    @commands.command(name='플레이리스트삭제', aliases=['플래이리스트삭제', 'playrestdelete'])
     async def 플레이리스트삭제(self, ctx):
         """선생님의 플레이리스트 목록을 보여주고 삭제할 수 있어요."""
         user_id = str(ctx.author.id)
