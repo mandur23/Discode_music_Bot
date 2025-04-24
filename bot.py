@@ -17,11 +17,12 @@ from fuzzywuzzy import process
 import random
 
 # 봇 토큰을 넣은 파일 작성후 주소에 대입.
-load_dotenv(dotenv_path=r'C:\Users\kimminsu\PycharmProjects\tendo_Aris\.venv\TOKEN.env')
+load_dotenv(dotenv_path=r'C:\Users\User\PycharmProjects\Tendo_Aris\TOKEN.env')
 token = os.getenv('DISCORD_BOT_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
+
 
 class FuzzyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -52,6 +53,7 @@ class FuzzyBot(commands.Bot):
     async def on_ready(self):
         print(f'아리스가 준비 완료했어요! {self.user}로 로그인했답니다~')
 
+
 # 봇 객체 생성
 bot = FuzzyBot(command_prefix='!', intents=intents)
 
@@ -77,7 +79,8 @@ ffmpeg_options = {
 }
 
 # 설치된 FFmpeg 실행 파일의 경로 (적절히 변경 필요)
-ffmpeg_path = r'C:\Users\kimminsu\Downloads\ffmpeg-2024-10-02-git-358fdf3083-full_build\bin\ffmpeg.exe'  
+ffmpeg_path = r'C:\Users\User\ffmpeg-2024-10-21-git-baa23e40c1-full_build\bin\ffmpeg.exe'
+
 
 class MusicPlayer:
     def __init__(self, ctx):
@@ -106,6 +109,11 @@ class MusicPlayer:
         self.bot.loop.create_task(self.player_loop())
         self.bot.loop.create_task(self.register_voice_state_listener())  # 음성 상태 업데이트 리스너 등록
         self.bot.loop.create_task(self.check_idle_timeout())  # 아이들 타임아웃 체크 추가
+
+    # is_playing 프로퍼티 추가
+    @property
+    def is_playing(self):
+        return self.guild.voice_client and self.guild.voice_client.is_playing()
 
     async def check_idle_timeout(self):
         while True:
@@ -183,7 +191,8 @@ class MusicPlayer:
                     continue
 
             self.current = source
-            self.current_message = await self.channel.send(f'선생님, 지금 재생 중인 노래예요: {source["title"]}\n주소: {source.get("webpage_url", "알 수 없음")}')
+            self.current_message = await self.channel.send(
+                f'선생님, 지금 재생 중인 노래예요: {source["title"]}\n주소: {source.get("webpage_url", "알 수 없음")}')
             self.button_message, view = await self.create_player_message()  # 버튼 메시지와 뷰 저장
 
             # 버튼 색상 유지
@@ -191,7 +200,9 @@ class MusicPlayer:
 
             try:
                 self.guild.voice_client.play(
-                    discord.FFmpegPCMAudio(source['url'], executable=ffmpeg_path, before_options=ffmpeg_options['before_options'], options=ffmpeg_options['options']),
+                    discord.FFmpegPCMAudio(source['url'], executable=ffmpeg_path,
+                                           before_options=ffmpeg_options['before_options'],
+                                           options=ffmpeg_options['options']),
                     after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set)
                 )
                 self.guild.voice_client.source = discord.PCMVolumeTransformer(self.guild.voice_client.source)
@@ -236,12 +247,12 @@ class MusicPlayer:
 
         play_pause = Button(label="재생/일시정지", style=discord.ButtonStyle.primary)
         skip = Button(label="다음 노래로!", style=discord.ButtonStyle.secondary)
-        
+
         loop = Button(label="이 노래 계속 들을래요", style=discord.ButtonStyle.danger)
         queue_loop = Button(label="전체 반복", style=discord.ButtonStyle.danger)
-        
+
         random_play = Button(label="랜덤 재생", style=discord.ButtonStyle.secondary)  # 랜덤 재생 버튼 추가
-        
+
         volume_up = Button(label="더 크게!", style=discord.ButtonStyle.secondary)
         volume_down = Button(label="조금만 작게", style=discord.ButtonStyle.secondary)
         stop_button = Button(label="종료", style=discord.ButtonStyle.danger)
@@ -252,7 +263,8 @@ class MusicPlayer:
                 await interaction.response.send_message("선생님, 노래를 다시 재생할게요!", ephemeral=True, delete_after=3)
             else:
                 self.guild.voice_client.pause()
-                await interaction.response.send_message("노래를 잠시 멈췄어요. 계속 들으시려면 다시 눌러주세요, 선생님!", ephemeral=True, delete_after=3)
+                await interaction.response.send_message("노래를 잠시 멈췄어요. 계속 들으시려면 다시 눌러주세요, 선생님!", ephemeral=True,
+                                                        delete_after=3)
 
         async def skip_callback(interaction):
             self.guild.voice_client.stop()
@@ -274,7 +286,8 @@ class MusicPlayer:
 
         async def random_play_callback(interaction):
             if self.loop:  # 한 곡 반복이 켜져 있을 경우
-                await interaction.response.send_message("한 곡 반복이 활성화되어 있어요. 랜덤 재생을 켜기 전에 한 곡 반복을 꺼야 해요.", ephemeral=True)
+                await interaction.response.send_message("한 곡 반복이 활성화되어 있어요. 랜덤 재생을 켜기 전에 한 곡 반복을 꺼야 해요.",
+                                                        ephemeral=True)
                 return
 
             self.random_play = not self.random_play  # 랜덤 재생 모드 토글
@@ -292,7 +305,8 @@ class MusicPlayer:
             if self.volume < 1.0:
                 self.volume = min(1.0, self.volume + 0.1)
                 self.guild.voice_client.source.volume = self.volume
-                await interaction.response.send_message(f"선생님, 볼륨을 {int(self.volume * 100)}%로 올렸어요! 이제 잘 들리나요?", ephemeral=True, delete_after=3)
+                await interaction.response.send_message(f"선생님, 볼륨을 {int(self.volume * 100)}%로 올렸어요! 이제 잘 들리나요?",
+                                                        ephemeral=True, delete_after=3)
             else:
                 await interaction.response.send_message("앗, 볼륨이 이미 최대예요! 아리스의 귀가 아파요~", ephemeral=True, delete_after=3)
 
@@ -300,14 +314,17 @@ class MusicPlayer:
             if self.volume > 0.0:
                 self.volume = max(0.0, self.volume - 0.1)
                 self.guild.voice_client.source.volume = self.volume
-                await interaction.response.send_message(f"선생님, 볼륨을 {int(self.volume * 100)}%로 낮췄어요! 이정도면 괜찮으신가요?", ephemeral=True, delete_after=3)
+                await interaction.response.send_message(f"선생님, 볼륨을 {int(self.volume * 100)}%로 낮췄어요! 이정도면 괜찮으신가요?",
+                                                        ephemeral=True, delete_after=3)
             else:
-                await interaction.response.send_message("어머, 볼륨이 이미 최소예요! 더 이상 낮추면 아무 소리도 안 들릴 거예요~", ephemeral=True, delete_after=3)
+                await interaction.response.send_message("어머, 볼륨이 이미 최소예요! 더 이상 낮추면 아무 소리도 안 들릴 거예요~", ephemeral=True,
+                                                        delete_after=3)
 
         async def stop_callback(interaction):
             if self.guild.voice_client.is_playing():
                 await self.stop()
-                await interaction.response.send_message("알겠습니다, 선생님! 아리스가 음악 재생을 종료하고 음성 채널에서 나갔어요~ 다음에 또 불러주세요!", ephemeral=True, delete_after=3)
+                await interaction.response.send_message("알겠습니다, 선생님! 아리스가 음악 재생을 종료하고 음성 채널에서 나갔어요~ 다음에 또 불러주세요!",
+                                                        ephemeral=True, delete_after=3)
             else:
                 await interaction.response.send_message("현재 재생 중인 음악이 없어요!", ephemeral=True, delete_after=3)
 
@@ -348,44 +365,94 @@ class MusicPlayer:
         return self.bot.loop.create_task(self.cog.cleanup(guild))
 
     async def play_next(self):
-        while True:  # 무한 루프 시작
-            if self.queue.empty():
-                return
-            
-            if self.loop:  # 전체 반복 모드일 때
-                source = self.current  # 현재 곡을 반복
-            elif self.random_play:  # 랜덤 재생 모드일 때
-                if self.queue._queue:  # 큐가 비어있지 않은 경우
-                    source = random.choice(list(self.queue._queue))  # 랜덤으로 곡 선택
-                else:
-                    return  # 큐가 비어있으면 종료
+        if self.queue.empty():
+            return
+
+        if self.guild.voice_client is None:  # 음성 클라이언트가 None인지 확인
+            if self.channel.guild.me.voice and self.channel.guild.me.voice.channel:  # 봇이 음성 채널에 있는지 확인
+                voice_channel = self.channel.guild.me.voice.channel
+                await voice_channel.connect()
+            elif self.channel.author and self.channel.author.voice:  # 메시지 작성자가 음성 채널에 있는지 확인
+                await self.channel.author.voice.channel.connect()
             else:
-                source = await self.queue.get()  # 일반적으로 다음 곡 선택
+                return  # 음성 채널에 연결할 수 없으면 종료
 
-            if self.guild.voice_client is None:  # 음성 클라이언트가 None인지 확인
-                if self.channel.members:  # 사용자가 음성 채널에 있는지 확인
-                    await self.channel.connect()  # 음성 채널에 연결
-                else:
-                    return  # 음성 채널에 연결할 수 없으면 종료
+        # 반복 모드나 랜덤 재생 모드에 따라 곡 선택
+        if self.loop and self.current:  # 한 곡 반복 모드
+            source = self.current
+        elif self.random_play and self.queue._queue:  # 랜덤 재생 모드
+            queue_list = list(self.queue._queue)
+            index = random.randrange(len(queue_list))
+            source = queue_list[index]
+            # 큐에서 해당 항목 제거
+            for _ in range(self.queue.qsize()):
+                item = await self.queue.get()
+                if item == source:
+                    break
+                await self.queue.put(item)
+        else:  # 일반 재생 모드
+            source = await self.queue.get()
 
-            # 현재 곡 반복 모드가 활성화된 경우, 현재 곡을 대기열에 추가
-            if self.loop and not self.random_play:
-                await self.queue.put(source)
+        # 현재 곡 반복 모드가 활성화된 경우, 현재 곡을 대기열에 추가
+        if self.loop and not self.random_play:
+            await self.queue.put(source)
 
-            await self.guild.voice_client.play(
-                discord.FFmpegPCMAudio(source['url'], executable=ffmpeg_path, before_options=ffmpeg_options['before_options'], options=ffmpeg_options['options']),
+        # 곡 재생 시작
+        if not isinstance(source, dict):
+            try:
+                ydl = yt_dlp.YoutubeDL(ytdl_format_options)
+                source = await self.bot.loop.run_in_executor(None, lambda: ydl.extract_info(source, download=False))
+            except Exception as e:
+                await self.channel.send(f'어머나, 오류가 발생했어요: {str(e)}')
+                return
+
+        # 현재 메시지와 버튼 메시지 업데이트
+        if self.current_message:
+            await self.current_message.delete()
+        if self.button_message:
+            await self.button_message.delete()
+
+        self.current = source
+        self.current_message = await self.channel.send(
+            f'선생님, 지금 재생 중인 노래예요: {source["title"]}\n주소: {source.get("webpage_url", "알 수 없음")}')
+        self.button_message, view = await self.create_player_message()
+
+        # 버튼 색상 유지
+        await self.update_button_styles(view)
+
+        try:
+            self.guild.voice_client.play(
+                discord.FFmpegPCMAudio(source['url'], executable=ffmpeg_path,
+                                       before_options=ffmpeg_options['before_options'],
+                                       options=ffmpeg_options['options']),
                 after=lambda _: self.bot.loop.call_soon_threadsafe(self.next.set)
             )
+            self.guild.voice_client.source = discord.PCMVolumeTransformer(self.guild.voice_client.source)
+            self.guild.voice_client.source.volume = self.volume
+        except Exception as e:
+            await self.channel.send(f"앗, 재생 중에 문제가 생겼어요: {str(e)}")
+            print(f"상세 오류 정보: {e.__class__.__name__}: {str(e)}")
 
             # 랜덤 재생이 활성화된 경우, 다음 곡을 계속해서 재생
             if self.random_play:
                 await asyncio.sleep(1)  # 잠시 대기 후 다음 곡 재생
+
 
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.players = {}
         self.playlists = self.load_playlists()
+
+    @commands.command(name='play', aliases=['p', '재생', '플레이'])
+    async def play_command(self, ctx, *, url):
+        """YouTube URL을 재생합니다."""
+        async with ctx.typing():
+            try:
+                await self.play(ctx, url)
+                await ctx.message.delete()
+            except Exception as e:
+                await ctx.send(f"선생님, 재생 중 오류가 발생했어요: {str(e)}", delete_after=10)
 
     def load_playlists(self):
         try:
@@ -397,7 +464,7 @@ class Music(commands.Cog):
         except FileNotFoundError:
             return {}
         except json.JSONDecodeError:
-            print("플레이리스트 파일이 손상되었습니다. 새로운 플레이리스트를 시작합니다.",delete_after=10)
+            print("플레이리스트 파일이 손상되었습니다. 새로운 플레이리스트를 시작합니다.", delete_after=10)
             return {}
 
     def save_playlists(self):
@@ -429,13 +496,13 @@ class Music(commands.Cog):
     async def play(self, ctx, url):
         player = self.get_player(ctx)
         if not player:
-            return await ctx.send("선생님, 음성 채널에 먼저 입장해주세요! 아리스가 따라갈게요~",delete_after=10)
+            return await ctx.send("선생님, 음성 채널에 먼저 입장해주세요! 아리스가 따라갈게요~", delete_after=10)
 
         if not ctx.voice_client:
             if ctx.author.voice:
                 await ctx.author.voice.channel.connect()
             else:
-                return await ctx.send("선생님, 음성 채널에 먼저 입장해주세요! 아리스가 어디로 가야 할지 모르겠어요~",delete_after=10)
+                return await ctx.send("선생님, 음성 채널에 먼저 입장해주세요! 아리스가 어디로 가야 할지 모르겠어요~", delete_after=10)
 
         await player.queue.put(url)
         if not player.is_playing:
@@ -457,21 +524,6 @@ class Music(commands.Cog):
     async def leave(self, ctx):
         """봇을 음성 채널에서 내보냅니다."""
         await self.stop(ctx)  # stop 명령어를 재사용
-        await self.delete_command_message(ctx)
-
-    @commands.command(aliases=['큐', '대기열'])
-    async def queue(self, ctx):
-        """현재 재생 목록을 표시합니다."""
-        player = self.get_player(ctx)
-        if player.queue.empty():
-            await ctx.send("앗, 선생님! 재생 목록이 비어있어요! 노래를 추가해주시면 아리스가 열심히 불러드릴게요~", delete_after=10)
-            await self.delete_command_message(ctx)
-            return
-
-        upcoming = list(player.queue._queue)
-        fmt = '\n'.join(f'**`{_['title']}`**' for _ in upcoming)
-        embed = discord.Embed(title=f'아리스의 재생 목록 - 총 {len(upcoming)}곡이에요!', description=fmt)
-        await ctx.send(embed=embed, delete_after=10)
         await self.delete_command_message(ctx)
 
     @commands.command(aliases=['볼륨'])
@@ -501,12 +553,13 @@ class Music(commands.Cog):
             return
 
         view = View()
-        select = Select(placeholder="플레이리스트를 선택하세요", options=[discord.SelectOption(label=name, value=name) for name in self.playlists[user_id].keys()])
+        select = Select(placeholder="플레이리스트를 선택하세요", options=[discord.SelectOption(label=name, value=name) for name in
+                                                              self.playlists[user_id].keys()])
 
         async def select_callback(interaction):
             playlist_name = select.values[0]
             playlist = self.playlists[user_id][playlist_name]
-            playlist_str = "\n".join(f"{i+1}. {url}" for i, url in enumerate(playlist))
+            playlist_str = "\n".join(f"{i + 1}. {url}" for i, url in enumerate(playlist))
 
             # 플레이리스트의 곡 목록을 보여주고 추가할지 물어봄
             confirm_view = View()
@@ -518,13 +571,15 @@ class Music(commands.Cog):
                     if ctx.author.voice:
                         await ctx.author.voice.channel.connect()
                     else:
-                        await add_interaction.response.send_message("선생님, 음성 채널에 먼저 입장해주세요! 아리스가 어디로 가야 할지 모르겠어요~", ephemeral=True, delete_after=10)
+                        await add_interaction.response.send_message("선생님, 음성 채널에 먼저 입장해주세요! 아리스가 어디로 가야 할지 모르겠어요~",
+                                                                    ephemeral=True, delete_after=10)
                         return
 
                 for url in playlist:
                     await player.queue.put(url)
 
-                response_message = await add_interaction.response.send_message(f"선생님의 '{playlist_name}' 플레이리스트의 모든 곡을 대기열에 추가했어요!", ephemeral=True, delete_after=5)
+                response_message = await add_interaction.response.send_message(
+                    f"선생님의 '{playlist_name}' 플레이리스트의 모든 곡을 대기열에 추가했어요!", ephemeral=True, delete_after=5)
                 await asyncio.sleep(3)
                 await response_message.delete()
 
@@ -540,7 +595,8 @@ class Music(commands.Cog):
             confirm_view.add_item(add_button)
             confirm_view.add_item(cancel_button)
 
-            await interaction.response.send_message(f"선생님의 '{playlist_name}' 플레이리스트예요:\n{playlist_str}\n곡을 대기열에 추가할까요?", view=confirm_view, ephemeral=True, delete_after=30)
+            await interaction.response.send_message(f"선생님의 '{playlist_name}' 플레이리스트예요:\n{playlist_str}\n곡을 대기열에 추가할까요?",
+                                                    view=confirm_view, ephemeral=True, delete_after=30)
 
         select.callback = select_callback
         view.add_item(select)
@@ -603,7 +659,7 @@ class Music(commands.Cog):
             return await ctx.send("어라? 1개 이상의 메시지를 지정해 주셔야 해요. 아리스가 삭제할 수 있게요!", delete_after=10)
 
         deleted = await ctx.channel.purge(limit=amount + 1)  # 명령어 메시지도 포함해서 삭제
-        await ctx.send(f"선생님, {len(deleted)-1}개의 메시지를 깨끗하게 지웠어요! 아리스가 열심히 청소했답니다~", delete_after=5)
+        await ctx.send(f"선생님, {len(deleted) - 1}개의 메시지를 깨끗하게 지웠어요! 아리스가 열심히 청소했답니다~", delete_after=5)
         await self.delete_command_message(ctx)
 
     @삭제.error
@@ -682,11 +738,11 @@ class Music(commands.Cog):
         """현재 프로그램을 재시작합니다."""
         os.execv(sys.executable, ['python'] + sys.argv)
 
-    @commands.command(name='종료', aliases=['exit'])
+    @commands.command(name='종료봇', aliases=['exit'])
     @commands.has_permissions(administrator=True)  # 관리자 권한 필요
-    async def stop(self, ctx):
+    async def exit_bot(self, ctx):
         """봇을 종료합니다."""
-        await ctx.send("아리스가 종료될게요! 안녕히 가세요!", delete_after=10)  # 수정된 부분
+        await ctx.send("아리스가 종료될게요! 안녕히 가세요!", delete_after=10)
         await self.bot.close()  # 봇 종료
 
     @commands.command(name='플레이리스트삭제', aliases=['플래이리스트삭제', 'playrestdelete'])
@@ -698,7 +754,9 @@ class Music(commands.Cog):
             return
 
         view = View()
-        select = Select(placeholder="삭제할 플레이리스트를 선택하세요", options=[discord.SelectOption(label=name, value=name) for name in self.playlists[user_id].keys()])
+        select = Select(placeholder="삭제할 플레이리스트를 선택하세요",
+                        options=[discord.SelectOption(label=name, value=name) for name in
+                                 self.playlists[user_id].keys()])
 
         async def select_callback(interaction):
             playlist_name = select.values[0]
@@ -707,7 +765,8 @@ class Music(commands.Cog):
             async def delete_callback(delete_interaction):
                 del self.playlists[user_id][playlist_name]
                 self.save_playlists()
-                await delete_interaction.response.send_message(f"선생님의 '{playlist_name}' 플레이리스트가 삭제되었어요!", ephemeral=True, delete_after=5)
+                await delete_interaction.response.send_message(f"선생님의 '{playlist_name}' 플레이리스트가 삭제되었어요!",
+                                                               ephemeral=True, delete_after=5)
 
             async def cancel_callback(cancel_interaction):
                 await cancel_interaction.response.send_message("플레이리스트 삭제가 취소되었어요.", ephemeral=True, delete_after=10)
@@ -721,7 +780,8 @@ class Music(commands.Cog):
             confirm_view.add_item(delete_button)
             confirm_view.add_item(cancel_button)
 
-            await interaction.response.send_message(f"선생님의 '{playlist_name}' 플레이리스트를 삭제할까요?", view=confirm_view, ephemeral=True, delete_after=30)
+            await interaction.response.send_message(f"선생님의 '{playlist_name}' 플레이리스트를 삭제할까요?", view=confirm_view,
+                                                    ephemeral=True, delete_after=30)
 
         select.callback = select_callback
         view.add_item(select)
@@ -745,11 +805,13 @@ class Music(commands.Cog):
             selected_playlist = self.playlists[user_id][selected_playlist_name]
 
             if not selected_playlist:
-                await interaction.response.send_message(f"선생님, '{selected_playlist_name}' 플레이리스트에 노래가 없어요.", ephemeral=True, delete_after=5)
+                await interaction.response.send_message(f"선생님, '{selected_playlist_name}' 플레이리스트에 노래가 없어요.",
+                                                        ephemeral=True, delete_after=5)
                 return
 
             # 노래 선택을 위한 선택지 생성
-            song_options = [discord.SelectOption(label=f"{i + 1}. {url}", value=str(i)) for i, url in enumerate(selected_playlist)]
+            song_options = [discord.SelectOption(label=f"{i + 1}. {url}", value=str(i)) for i, url in
+                            enumerate(selected_playlist)]
             song_select = Select(placeholder="삭제할 노래를 선택하세요", options=song_options)
 
             async def song_select_callback(interaction):
@@ -764,7 +826,9 @@ class Music(commands.Cog):
                 async def confirm_callback(confirm_interaction):
                     selected_playlist.pop(index)  # 선택된 노래 삭제
                     self.save_playlists()
-                    await confirm_interaction.response.send_message(f"선생님의 '{selected_playlist_name}' 플레이리스트에서 '{removed_song}' 노래가 삭제되었어요!", ephemeral=True, delete_after=5)
+                    await confirm_interaction.response.send_message(
+                        f"선생님의 '{selected_playlist_name}' 플레이리스트에서 '{removed_song}' 노래가 삭제되었어요!", ephemeral=True,
+                        delete_after=5)
 
                 async def cancel_callback(cancel_interaction):
                     await cancel_interaction.response.send_message("노래 삭제가 취소되었어요.", ephemeral=True, delete_after=5)
@@ -775,13 +839,15 @@ class Music(commands.Cog):
                 confirm_view.add_item(confirm_button)
                 confirm_view.add_item(cancel_button)
 
-                await interaction.response.send_message(f"정말로 '{removed_song}' 노래를 삭제할까요?", view=confirm_view, ephemeral=True, delete_after=60)
+                await interaction.response.send_message(f"정말로 '{removed_song}' 노래를 삭제할까요?", view=confirm_view,
+                                                        ephemeral=True, delete_after=60)
 
             song_select.callback = song_select_callback
             song_view = View()
             song_view.add_item(song_select)
 
-            await interaction.response.send_message(f"선생님의 '{selected_playlist_name}' 플레이리스트에서 삭제할 노래를 선택하세요:", view=song_view, ephemeral=True, delete_after=60)
+            await interaction.response.send_message(f"선생님의 '{selected_playlist_name}' 플레이리스트에서 삭제할 노래를 선택하세요:",
+                                                    view=song_view, ephemeral=True, delete_after=60)
 
         playlist_select.callback = playlist_select_callback
         playlist_view = View()
@@ -789,10 +855,12 @@ class Music(commands.Cog):
 
         await ctx.send("선생님의 플레이리스트 목록이에요:", view=playlist_view, delete_after=60)
 
+
 async def main():
     async with bot:
         await bot.add_cog(Music(bot))
         await bot.start(token)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
