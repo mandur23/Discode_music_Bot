@@ -208,7 +208,7 @@ class MusicPlayer:
                 self.guild.voice_client.source = discord.PCMVolumeTransformer(self.guild.voice_client.source)
                 self.guild.voice_client.source.volume = self.volume
             except Exception as e:
-                await self.channel.send(f"앗, 재생 중에 문제가 생겼어요: {str(e)}")
+                await self.channel.send(f"앗, 재생 중에 문제가 생겼어요: {str(e)}", delete_after=10)
                 print(f"상세 오류 정보: {e.__class__.__name__}: {str(e)}")
                 continue
 
